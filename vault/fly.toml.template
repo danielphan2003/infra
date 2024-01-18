@@ -1,0 +1,49 @@
+app = "{{ app_name }}"
+primary_region = "sin"
+kill_signal = "SIGINT"
+kill_timeout = "5s"
+
+[experimental]
+auto_rollback = true
+
+[build]
+dockerfile = "Dockerfile.debian"
+
+[env]
+DATA_FOLDER = "/data/vault"
+DOCKER_MODS = "linuxserver/mods:universal-cloudflared"
+DOMAIN = "https://vault.c-137.me"
+EXTENDED_LOGGING = "true"
+FILE__CF_TUNNEL_CONFIG = "/app/tunnelconfig.yml"
+ICON_REDIRECT_CODE = "301"
+ICON_SERVICE = "https://favicon.twenty.com/{}"
+INVITATIONS_ALLOWED = "false"
+INVITATION_ORG_NAME = "c-137.me"
+LOG_LEVEL = "warn"
+PC_DISABLE_TUI = "true"
+PC_PORT_NUM = "8081"
+PUSH_ENABLED = "true"
+ROCKET_ADDRESS = "127.0.0.1"
+ROCKET_LOG = "critical"
+ROCKET_PORT = "8080"
+SHOW_PASSWORD_HINT = "false"
+SIGNUPS_ALLOWED = "false"
+SMTP_FROM = "vaultwarden@c-137.me"
+SMTP_HOST = "smtp.eu.mailgun.org"
+SMTP_PORT = "465"
+SMTP_SECURITY = "force_tls"
+TAILSCALE_DOMAIN = "vault.penguin-major.ts.net"
+TAILSCALE_HOSTNAME = "vault"
+TS_DEBUG_FIREWALL_MODE = "auto"
+TZ = "Asia/Ho_Chi_Minh"
+WEBSOCKET_ADDRESS = "127.0.0.1"
+WEBSOCKET_ENABLED = "false"
+WEB_VAULT_ENABLED = "true"
+WEB_VAULT_FOLDER = "/app/web-vault/"
+XDG_CONFIG_HOME = "/data/caddy/config"
+XDG_DATA_HOME = "/data/caddy/data"
+
+[[mounts]]
+source = "vault_data"
+destination = "/data"
+auto_extend_size_threshold = 0

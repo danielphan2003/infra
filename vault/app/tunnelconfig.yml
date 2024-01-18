@@ -1,0 +1,9 @@
+ingress:
+  - hostname: vault.c-137.me
+    service: https://vault.penguin-major.ts.net
+    originRequest:
+      originServerName: vault.penguin-major.ts.net
+      httpHostHeader: vault.penguin-major.ts.net
+      http2Origin: true
+
+  - service: http_status:404

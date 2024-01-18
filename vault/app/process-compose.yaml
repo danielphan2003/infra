@@ -1,0 +1,37 @@
+version: "0.5"
+
+log_level: debug
+
+processes:
+  caddy:
+    command: "/app/caddy.sh"
+    working_dir: "/app"
+    availability:
+      restart: "no"
+    log_location: ./pc.caddy.log
+    depends_on:
+      tailscale-post:
+        condition: process_completed_successfully
+
+  tailscaled:
+    command: "/app/tailscaled.sh"
+    working_dir: "/var/lib/tailscale"
+    log_location: ./pc.tailscaled.log
+    availability:
+      restart: "no"
+
+  tailscale-post:
+    command: "/app/tailscale-post.sh"
+    working_dir: "/app"
+    availability:
+      restart: "no"
+    depends_on:
+      tailscaled:
+        condition: process_started
+
+  vaultwarden:
+    command: "/app/vaultwarden.sh"
+    working_dir: "/app"
+    log_location: ./pc.vaultwarden.log
+    availability:
+      restart: "no"
