@@ -1,5 +1,5 @@
-FROM ghcr.io/dani-garcia/vaultwarden:testing as vaultwarden
-FROM docker.io/tailscale/tailscale:unstable as tailscale
+FROM ghcr.io/dani-garcia/vaultwarden:latest as vaultwarden
+FROM docker.io/tailscale/tailscale:stable as tailscale
 
 FROM docker.io/library/caddy:builder as caddy
 RUN xcaddy build --with github.com/WeidiDeng/caddy-cloudflare-ip
@@ -44,3 +44,4 @@ ENV LC_ALL=C.UTF-8
 WORKDIR /app
 ENTRYPOINT ["/init-wrapper"]
 CMD ["/usr/bin/with-contenv", "process-compose", "-f", "/app/process-compose.yaml"]
+# CMD ["/usr/bin/process-compose", "-f", "/app/process-compose.yaml"]
