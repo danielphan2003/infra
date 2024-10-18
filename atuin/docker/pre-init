@@ -1,0 +1,12 @@
+#! /bin/sh
+
+# Workarounds for volume mounting in Fly.io
+mkdir -p /data/tailscale
+ln -s /data/tailscale /var/lib/tailscale
+
+# HTTP/3
+sysctl -w net.core.rmem_max=2500000
+sysctl -w net.core.wmem_max=2500000
+
+# Cloudflare ping
+sysctl -w net.ipv4.ping_group_range="0 911"

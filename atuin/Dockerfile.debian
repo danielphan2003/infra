@@ -1,0 +1,54 @@
+FROM ghcr.io/atuinsh/atuin:latest as atuin
+FROM docker.io/tailscale/tailscale:stable as tailscale
+
+FROM docker.io/library/caddy:builder as caddy
+RUN xcaddy build --with github.com/WeidiDeng/caddy-cloudflare-ip
+
+FROM docker.io/lsiobase/debian:bookworm as base
+
+# Install ca-certificates for webhooks to work
+RUN apt update && apt install ca-certificates -y && rm -rf /var/lib/apt/lists/*
+
+RUN set -eux; \
+  mkdir -p /tmp/build; \
+  cd /tmp/build; \
+  curl -fsSL https://github.com/F1bonacc1/process-compose/releases/latest/download/process-compose_linux_amd64.tar.gz | tar -zxvf - process-compose; \
+  mv process-compose /usr/bin/process-compose; \
+  chmod +x /usr/bin/process-compose; \
+  cd; \
+  rm -rf /tmp/build
+
+RUN apt update && apt install -y --no-install-recommends \
+  ca-certificates \
+  curl \
+  iproute2 \
+  iptables \
+  libmariadb-dev-compat \
+  libpq5 \
+  openssl \
+  procps \
+  && apt clean \
+  && rm -rf /var/lib/apt/lists/*
+
+RUN mkdir -p /app
+
+COPY docker/* /
+COPY app/* /app
+
+RUN chmod 0555 /app/*.sh /init-wrapper /pre-init
+
+COPY --from=caddy /usr/bin/caddy /usr/bin/caddy
+COPY --from=tailscale /usr/local/bin/tailscaled /usr/bin/tailscaled
+COPY --from=tailscale /usr/local/bin/tailscale /usr/bin/tailscale
+COPY --from=atuin /usr/local/bin/atuin /usr/bin/atuin
+
+ENV LC_ALL=C.UTF-8
+ENV TZ=Etc/UTC
+ENV RUST_LOG=atuin::api=info
+ENV ATUIN_CONFIG_DIR=/data/config
+
+WORKDIR /app
+
+ENTRYPOINT ["/init-wrapper"]
+CMD ["/usr/bin/with-contenv", "process-compose", "-f", "/app/process-compose.yaml"]
+# CMD ["/usr/bin/process-compose", "-f", "/app/process-compose.yaml"]

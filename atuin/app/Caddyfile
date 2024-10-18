@@ -1,0 +1,59 @@
+{
+    servers :80 {
+        trusted_proxies cloudflare {
+            interval 12h
+            timeout 15s
+        }
+    }
+    servers :443 {
+        trusted_proxies cloudflare {
+            interval 12h
+            timeout 15s
+        }
+    }
+}
+
+# bind tailscale+tls/vault
+
+# tailscale_auth
+
+{$TAILSCALE_DOMAIN}
+
+encode zstd gzip
+
+# Uncomment to improve security (WARNING: only use if you understand the implications!)
+# If you want to use FIDO2 WebAuthn, set X-Frame-Options to "SAMEORIGIN" or the Browser will block those requests
+header {
+    # Enable HTTP Strict Transport Security (HSTS)
+    Strict-Transport-Security "max-age=31536000;"
+    # Enable cross-site filter (XSS) and tell browser to block detected attacks
+    X-XSS-Protection "1; mode=block"
+    # Disallow the site to be rendered within a frame (clickjacking protection)
+    X-Frame-Options "SAMEORIGIN"
+    # Prevent search engines from indexing (optional)
+    X-Robots-Tag "none"
+    # Disallow sniffing of X-Content-Type-Options
+    X-Content-Type-Options "nosniff"
+    # Server name removing
+    -Server
+    # Remove X-Powered-By though this shouldn't be an issue, better opsec to remove
+    -X-Powered-By
+    # CSP
+    >Content-Security-Policy "(.*) ; img-src (.*) ; (.*)" "$1 ; img-src $2 ; $3"
+    # Permission-Policy: add interest-cohort
+    >Permissions-Policy (.*) "$1, interest-cohort=()"
+}
+
+reverse_proxy 127.0.0.1:8888 {
+    # Send the true remote IP to Rocket, so that atuin can put this in the
+    # log, so that fail2ban can ban the correct IP.
+    header_up X-Real-Ip {http.request.header.CF-Connecting-IP}
+}
+
+log {
+    level INFO
+    output file {$LOG_FILE} {
+        roll_size 10MB
+        roll_keep 10
+    }
+}

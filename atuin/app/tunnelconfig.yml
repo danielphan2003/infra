@@ -1,0 +1,9 @@
+ingress:
+  - hostname: atuin.c-137.me
+    service: https://atuin.penguin-major.ts.net
+    originRequest:
+      originServerName: atuin.penguin-major.ts.net
+      httpHostHeader: atuin.penguin-major.ts.net
+      http2Origin: true
+
+  - service: http_status:404
